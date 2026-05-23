@@ -1,10 +1,8 @@
 import { createComparison, defaultRules } from "../lib/compare.js";
 
-// @todo: #4.3 — настроить компаратор
 const compare = createComparison(defaultRules);
 
 export function initFiltering(elements, indexes) {
-    // @todo: #4.1 — заполнить выпадающие списки опциями
     Object.keys(indexes).forEach((elementName) => {
         if (elements[elementName]) {
             elements[elementName].append(
@@ -19,19 +17,40 @@ export function initFiltering(elements, indexes) {
     });
 
     return (data, state, action) => {
-        // @todo: #4.2 — обработать очистку поля
         if (action && action.name === 'clear') {
             const parent = action.closest('.filter-wrapper');
             if (parent) {
                 const input = parent.querySelector('input');
                 if (input) {
                     input.value = '';
-                    state[action.dataset.field] = '';
+                    const field = action.dataset?.field;
+                    if (field) {
+                        state[field] = '';
+                    }
                 }
             }
         }
 
-        // @todo: #4.5 — отфильтровать данные используя компаратор
-        return data.filter(row => compare(row, state));
+        return data.filter(row => {
+            const matches = Object.entries(state).every(([key, value]) => {
+                if (!value || value === '') return true;
+                
+                if (key === 'totalFrom') {
+                    const total = parseFloat(row.total);
+                    const minTotal = parseFloat(value);
+                    return !isNaN(total) && !isNaN(minTotal) && total >= minTotal;
+                }
+                
+                if (key === 'totalTo') {
+                    const total = parseFloat(row.total);
+                    const maxTotal = parseFloat(value);
+                    return !isNaN(total) && !isNaN(maxTotal) && total <= maxTotal;
+                }
+                
+                return compare(row, { [key]: value });
+            });
+            
+            return matches;
+        });
     };
 }
