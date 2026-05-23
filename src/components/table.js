@@ -1,4 +1,4 @@
-import {cloneTemplate} from "../lib/utils.js";
+import { cloneTemplate } from "../lib/utils.js";
 
 /**
  * Инициализирует таблицу и вызывает коллбэк при любых изменениях и нажатиях на кнопки
@@ -8,11 +8,9 @@ import {cloneTemplate} from "../lib/utils.js";
  * @returns {{container: Node, elements: *, render: render}}
  */
 export function initTable(settings, onAction) {
-    const {tableTemplate, rowTemplate, before, after} = settings;
+    const { tableTemplate, rowTemplate, before, after } = settings;
     const root = cloneTemplate(tableTemplate);
 
-    // @todo: #1.2 —  вывести дополнительные шаблоны до и после таблицы
-    // Добавляем шаблоны before в обратном порядке (чтобы сохранить порядок при prepend)
     if (before && before.length) {
         [...before].reverse().forEach(subName => {
             root[subName] = cloneTemplate(subName);
@@ -20,7 +18,6 @@ export function initTable(settings, onAction) {
         });
     }
     
-    // Добавляем шаблоны after
     if (after && after.length) {
         after.forEach(subName => {
             root[subName] = cloneTemplate(subName);
@@ -28,7 +25,6 @@ export function initTable(settings, onAction) {
         });
     }
 
-    // @todo: #1.3 —  обработать события и вызвать onAction()
     root.container.addEventListener('change', () => {
         onAction();
     });
@@ -43,11 +39,9 @@ export function initTable(settings, onAction) {
     });
 
     const render = (data) => {
-        // @todo: #1.1 — преобразовать данные в массив строк на основе шаблона rowTemplate
         const nextRows = data.map(item => {
             const row = cloneTemplate(rowTemplate);
             
-            // Заполняем элементы данными
             Object.keys(item).forEach(key => {
                 if (row.elements[key]) {
                     row.elements[key].textContent = item[key];
@@ -56,8 +50,9 @@ export function initTable(settings, onAction) {
             
             return row.container;
         });
+        
         root.elements.rows.replaceChildren(...nextRows);
-    }
+    };
 
-    return {...root, render};
+    return { ...root, render };
 }

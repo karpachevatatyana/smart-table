@@ -1,21 +1,20 @@
 // Импорт стилей должен быть первым
-import './style.css'
-import './fonts/ys-display/fonts.css'
+import './style.css';
+import './fonts/ys-display/fonts.css';
 
-import {data as sourceData} from "./data/dataset_1.js";
+import { data as sourceData } from "./data/dataset_1.js";
 
-import {initData} from "./data.js";
-import {processFormData} from "./lib/utils.js";
+import { initData } from "./data.js";
+import { processFormData } from "./lib/utils.js";
 
-import {initTable} from "./components/table.js";
-// @todo: подключение
-import {initPagination} from "./components/pagination.js";
-import {initSorting} from "./components/sorting.js";
-import {initFiltering} from "./components/filtering.js";
-import {initSearching} from "./components/searching.js";
+import { initTable } from "./components/table.js";
+import { initPagination } from "./components/pagination.js";
+import { initSorting } from "./components/sorting.js";
+import { initFiltering } from "./components/filtering.js";
+import { initSearching } from "./components/searching.js";
 
 // Исходные данные используемые в render()
-const {data, ...indexes} = initData(sourceData);
+const { data, ...indexes } = initData(sourceData);
 
 /**
  * Сбор и обработка полей из таблицы
@@ -27,7 +26,6 @@ function collectState() {
     const rowsPerPage = parseInt(state.rowsPerPage);
     const page = parseInt(state.page ?? 1);
     
-    // Проверяем, что числа валидны
     const validRowsPerPage = isNaN(rowsPerPage) ? 10 : rowsPerPage;
     const validPage = isNaN(page) ? 1 : page;
     
@@ -43,30 +41,26 @@ function collectState() {
  * @param {HTMLButtonElement?} action
  */
 function render(action) {
-    let state = collectState(); // состояние полей из таблицы
-    let result = [...data]; // копируем для последующего изменения
+    let state = collectState();
+    let result = [...data];
     
-    // Применяем поиск
     if (applySearching) {
         result = applySearching(result, state, action);
     }
     
-    // Применяем фильтрацию
     if (applyFiltering) {
         result = applyFiltering(result, state, action);
     }
     
-    // Применяем сортировку
     if (applySorting) {
         result = applySorting(result, state, action);
     }
     
-    // Применяем пагинацию
     if (applyPagination) {
         result = applyPagination(result, state, action);
     }
     
-    sampleTable.render(result)
+    sampleTable.render(result);
 }
 
 // Инициализация таблицы
@@ -80,7 +74,6 @@ const sampleTable = initTable({
 // Инициализация модулей
 let applyPagination, applySorting, applyFiltering, applySearching;
 
-// Проверяем, что элементы существуют перед инициализацией
 if (sampleTable.pagination && sampleTable.pagination.elements) {
     applyPagination = initPagination(
         sampleTable.pagination.elements,
@@ -114,11 +107,9 @@ if (sampleTable.filter && sampleTable.filter.elements) {
 
 applySearching = initSearching('search');
 
-// Добавляем таблицу на страницу
 const appRoot = document.querySelector('#app');
 if (appRoot) {
     appRoot.appendChild(sampleTable.container);
 }
 
-// Запускаем рендер
 render();
