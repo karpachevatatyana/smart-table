@@ -1,22 +1,18 @@
-import { createComparison, defaultRules } from "../lib/compare.js";
-
-const compare = createComparison(defaultRules);
-
-export function initFiltering(elements, indexes) {
-    Object.keys(indexes).forEach((elementName) => {
-        if (elements[elementName]) {
-            elements[elementName].append(
-                ...Object.values(indexes[elementName]).map(name => {
+export function initFiltering(elements) {
+    const updateIndexes = (elements, indexes) => {
+        Object.keys(indexes).forEach((elementName) => {
+            if (elements[elementName]) {
+                elements[elementName].append(...Object.values(indexes[elementName]).map(name => {
                     const option = document.createElement('option');
                     option.value = name;
                     option.textContent = name;
                     return option;
-                })
-            );
-        }
-    });
+                }));
+            }
+        });
+    }
 
-    return (data, state, action) => {
+    const applyFiltering = (query, state, action) => {
         if (action && action.name === 'clear') {
             const parent = action.closest('.filter-wrapper');
             if (parent) {
@@ -31,26 +27,20 @@ export function initFiltering(elements, indexes) {
             }
         }
 
-        return data.filter(row => {
-            const matches = Object.entries(state).every(([key, value]) => {
-                if (!value || value === '') return true;
-                
-                if (key === 'totalFrom') {
-                    const total = parseFloat(row.total);
-                    const minTotal = parseFloat(value);
-                    return !isNaN(total) && !isNaN(minTotal) && total >= minTotal;
+        const filter = {};
+        Object.keys(elements).forEach(key => {
+            if (elements[key]) {
+                if (['INPUT', 'SELECT'].includes(elements[key].tagName) && elements[key].value) {
+                    filter[`filter[${elements[key].name}]`] = elements[key].value;
                 }
-                
-                if (key === 'totalTo') {
-                    const total = parseFloat(row.total);
-                    const maxTotal = parseFloat(value);
-                    return !isNaN(total) && !isNaN(maxTotal) && total <= maxTotal;
-                }
-                
-                return compare(row, { [key]: value });
-            });
-            
-            return matches;
+            }
         });
+
+        return Object.keys(filter).length ? Object.assign({}, query, filter) : query;
+    }
+
+    return {
+        updateIndexes,
+        applyFiltering
     };
 }
