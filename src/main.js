@@ -1,11 +1,6 @@
-import './style.css';
-import './fonts/ys-display/fonts.css';
-
 import { data as sourceData } from "./data/dataset_1.js";
-
 import { initData } from "./data.js";
 import { processFormData } from "./lib/utils.js";
-
 import { initTable } from "./components/table.js";
 import { initPagination } from "./components/pagination.js";
 import { initSorting } from "./components/sorting.js";
@@ -111,7 +106,7 @@ if (appRoot) {
 async function init() {
     const indexes = await api.getIndexes();
     
-    if (updateIndexes && sampleTable.filter && sampleTable.filter.elements) {
+    if (updateIndexes) {
         updateIndexes(sampleTable.filter.elements, {
             searchBySeller: indexes.sellers
         });
