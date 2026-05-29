@@ -14,37 +14,7 @@ const mapRecords = (data) => data.map(item => ({
 }));
 
 export function initData(sourceData) {
-    let localRecords = [];
-    let localSellers = [];
-    let localCustomers = [];
-    let sellersMap = {};
-    let customersMap = {};
-    
-    if (sourceData && sourceData.purchase_records) {
-        sourceData.sellers?.forEach(seller => {
-            sellersMap[seller.id] = `${seller.first_name} ${seller.last_name}`;
-        });
-        localSellers = Object.values(sellersMap);
-        
-        sourceData.customers?.forEach(customer => {
-            customersMap[customer.id] = `${customer.first_name} ${customer.last_name}`;
-        });
-        localCustomers = Object.values(customersMap);
-        
-        localRecords = sourceData.purchase_records.map(record => ({
-            id: record.receipt_id,
-            date: record.date,
-            seller: sellersMap[record.seller_id],
-            customer: customersMap[record.customer_id],
-            total: record.total_amount
-        }));
-    }
-    
     const getIndexes = async () => {
-        if (localSellers.length && localCustomers.length) {
-            return { sellers: localSellers, customers: localCustomers };
-        }
-        
         if (!sellers || !customers) {
             [sellers, customers] = await Promise.all([
                 fetch(`${BASE_URL}/sellers`).then(res => res.json()),
@@ -56,88 +26,20 @@ export function initData(sourceData) {
     }
 
     const getRecords = async (query, isUpdated = false) => {
-        if (localRecords.length) {
-            let filtered = [...localRecords];
-            
-            // Фильтрация
-            if (query?.date && query.date !== '') {
-                filtered = filtered.filter(item => item.date.includes(query.date));
-            }
-            if (query?.customer && query.customer !== '') {
-                filtered = filtered.filter(item => 
-                    item.customer.toLowerCase().includes(query.customer.toLowerCase())
-                );
-            }
-            if (query?.seller && query.seller !== '') {
-                filtered = filtered.filter(item => item.seller === query.seller);
-            }
-            if (query?.search && query.search !== '') {
-                const searchTerm = query.search.toLowerCase();
-                filtered = filtered.filter(item => 
-                    item.date.includes(searchTerm) ||
-                    item.customer.toLowerCase().includes(searchTerm) ||
-                    item.seller.toLowerCase().includes(searchTerm)
-                );
-            }
-            if (query?.totalFrom && query.totalFrom !== '') {
-                const from = parseFloat(query.totalFrom);
-                if (!isNaN(from)) {
-                    filtered = filtered.filter(item => item.total >= from);
-                }
-            }
-            if (query?.totalTo && query.totalTo !== '') {
-                const to = parseFloat(query.totalTo);
-                if (!isNaN(to)) {
-                    filtered = filtered.filter(item => item.total <= to);
-                }
-            }
-            
-            // Сортировка - для тестов
-            if (query?.sort) {
-                const [field, order] = query.sort.split(':');
-                filtered.sort((a, b) => {
-                    let aVal = a[field];
-                    let bVal = b[field];
-                    
-                    if (field === 'date') {
-                        if (order === 'asc') {
-                            // asc = новые сначала
-                            return bVal.localeCompare(aVal);
-                        } else {
-                            // desc = старые сначала
-                            return aVal.localeCompare(bVal);
-                        }
-                    }
-                    
-                    if (field === 'total') {
-                        if (order === 'asc') {
-                            // asc = большие сначала
-                            return bVal - aVal;
-                        } else {
-                            // desc = маленькие сначала
-                            return aVal - bVal;
-                        }
-                    }
-                    
-                    return 0;
-                });
-            }
-            
-            // Пагинация
-            const limit = query?.limit ? parseInt(query.limit) : 10;
-            const page = query?.page ? parseInt(query.page) : 1;
-            const start = (page - 1) * limit;
-            const paginated = filtered.slice(start, start + limit);
-            
-            return {
-                total: filtered.length,
-                items: paginated
-            };
+        // Трансформируем параметры сортировки для API
+        const apiQuery = { ...query };
+        
+        // API ожидает sort в формате "field:direction"
+        // direction: 'asc' или 'desc'
+        if (apiQuery.sort) {
+            const [field, order] = apiQuery.sort.split(':');
+            // Для API оставляем как есть, API сам определит порядок
         }
         
-        // API
-        const qs = new URLSearchParams(query);
+        const qs = new URLSearchParams(apiQuery);
         const nextQuery = qs.toString();
+        
+        console.log('API Query:', nextQuery); // Для отладки
 
         if (lastQuery === nextQuery && !isUpdated) {
             return lastResult;
