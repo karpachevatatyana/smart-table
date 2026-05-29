@@ -92,7 +92,7 @@ export function initData(sourceData) {
                 }
             }
             
-            // Сортировка - правильный порядок для тестов
+            // Сортировка
             if (query?.sort) {
                 const [field, order] = query.sort.split(':');
                 filtered.sort((a, b) => {
