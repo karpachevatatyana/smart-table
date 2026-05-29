@@ -14,21 +14,21 @@ const mapRecords = (data) => data.map(item => ({
 }));
 
 export function initData(sourceData) {
-    // Преобразуем purchase_records в плоский массив для локального использования
+    // Преобразуем данные для локального использования
     let localRecords = [];
     let localSellers = [];
     let localCustomers = [];
+    let sellersMap = {};
+    let customersMap = {};
     
     if (sourceData && sourceData.purchase_records) {
-        // Создаем маппинг продавцов
-        const sellersMap = {};
+        // Маппинг продавцов
         sourceData.sellers?.forEach(seller => {
             sellersMap[seller.id] = `${seller.first_name} ${seller.last_name}`;
         });
         localSellers = Object.values(sellersMap);
         
-        // Создаем маппинг покупателей
-        const customersMap = {};
+        // Маппинг покупателей
         sourceData.customers?.forEach(customer => {
             customersMap[customer.id] = `${customer.first_name} ${customer.last_name}`;
         });
@@ -45,7 +45,6 @@ export function initData(sourceData) {
     }
     
     const getIndexes = async () => {
-        // Если есть локальные данные, возвращаем их
         if (localSellers.length && localCustomers.length) {
             return { sellers: localSellers, customers: localCustomers };
         }
@@ -65,19 +64,71 @@ export function initData(sourceData) {
         if (localRecords.length) {
             let filtered = [...localRecords];
             
-            // Фильтрация по продавцу
-            if (query && query.searchBySeller && query.searchBySeller !== '') {
-                filtered = filtered.filter(item => item.seller === query.searchBySeller);
+            // Фильтрация по дате (частичное совпадение)
+            if (query && query.date && query.date !== '') {
+                filtered = filtered.filter(item => 
+                    item.date.includes(query.date)
+                );
             }
             
-            // Поиск
+            // Фильтрация по покупателю (частичное совпадение)
+            if (query && query.customer && query.customer !== '') {
+                filtered = filtered.filter(item => 
+                    item.customer.toLowerCase().includes(query.customer.toLowerCase())
+                );
+            }
+            
+            // Фильтрация по продавцу (точное совпадение)
+            if (query && query.seller && query.seller !== '') {
+                filtered = filtered.filter(item => 
+                    item.seller === query.seller
+                );
+            }
+            
+            // Поиск (по всем текстовым полям)
             if (query && query.search && query.search !== '') {
                 const searchTerm = query.search.toLowerCase();
                 filtered = filtered.filter(item => 
-                    item.seller?.toLowerCase().includes(searchTerm) ||
-                    item.customer?.toLowerCase().includes(searchTerm) ||
-                    item.date?.includes(searchTerm)
+                    item.date.includes(searchTerm) ||
+                    item.customer.toLowerCase().includes(searchTerm) ||
+                    item.seller.toLowerCase().includes(searchTerm)
                 );
+            }
+            
+            // Фильтрация по сумме от
+            if (query && query.totalFrom && query.totalFrom !== '') {
+                const from = parseFloat(query.totalFrom);
+                if (!isNaN(from)) {
+                    filtered = filtered.filter(item => item.total >= from);
+                }
+            }
+            
+            // Фильтрация по сумме до
+            if (query && query.totalTo && query.totalTo !== '') {
+                const to = parseFloat(query.totalTo);
+                if (!isNaN(to)) {
+                    filtered = filtered.filter(item => item.total <= to);
+                }
+            }
+            
+            // Сортировка
+            if (query && query.sort) {
+                const [field, order] = query.sort.split(':');
+                filtered.sort((a, b) => {
+                    let aVal = a[field];
+                    let bVal = b[field];
+                    
+                    if (field === 'date') {
+                        aVal = new Date(aVal);
+                        bVal = new Date(bVal);
+                    }
+                    
+                    if (order === 'asc') {
+                        return aVal > bVal ? 1 : -1;
+                    } else {
+                        return aVal < bVal ? 1 : -1;
+                    }
+                });
             }
             
             // Пагинация

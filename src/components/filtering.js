@@ -4,15 +4,12 @@ export function initFiltering(elements) {
             const select = elements[elementName];
             if (!select) return;
             
-            while (select.options.length > 0) {
-                select.remove(0);
+            // Очищаем select, оставляя только опцию по умолчанию
+            while (select.options.length > 1) {
+                select.remove(1);
             }
             
-            const defaultOption = document.createElement('option');
-            defaultOption.value = '';
-            defaultOption.textContent = 'Все';
-            select.appendChild(defaultOption);
-            
+            // Добавляем опции из индексов
             Object.values(indexes[elementName]).forEach(name => {
                 const option = document.createElement('option');
                 option.textContent = name;
@@ -29,21 +26,32 @@ export function initFiltering(elements) {
                 const input = parent.querySelector('input');
                 if (input) {
                     input.value = '';
-                    const field = action.dataset?.field;
-                    if (field) {
-                        state[field] = '';
-                    }
                 }
             }
         }
 
         const filter = {};
-        Object.keys(elements).forEach(key => {
-            const el = elements[key];
-            if (el && ['INPUT', 'SELECT'].includes(el.tagName) && el.value) {
-                filter[el.name] = el.value;
-            }
-        });
+        
+        // Собираем фильтры из элементов
+        if (elements.searchByDate && elements.searchByDate.value) {
+            filter.date = elements.searchByDate.value;
+        }
+        
+        if (elements.searchByCustomer && elements.searchByCustomer.value) {
+            filter.customer = elements.searchByCustomer.value;
+        }
+        
+        if (elements.searchBySeller && elements.searchBySeller.value) {
+            filter.seller = elements.searchBySeller.value;
+        }
+        
+        if (elements.totalFrom && elements.totalFrom.value) {
+            filter.totalFrom = elements.totalFrom.value;
+        }
+        
+        if (elements.totalTo && elements.totalTo.value) {
+            filter.totalTo = elements.totalTo.value;
+        }
 
         return Object.keys(filter).length ? Object.assign({}, query, filter) : query;
     };
