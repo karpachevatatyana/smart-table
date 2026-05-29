@@ -111,7 +111,7 @@ if (appRoot) {
 async function init() {
     const indexes = await api.getIndexes();
     
-    if (updateIndexes) {
+    if (updateIndexes && sampleTable.filter && sampleTable.filter.elements) {
         updateIndexes(sampleTable.filter.elements, {
             searchBySeller: indexes.sellers
         });

@@ -1,33 +1,35 @@
 export function initFiltering(elements) {
-    const updateIndexes = (indexes) => {
+    const updateIndexes = (elements, indexes) => {
         Object.keys(indexes).forEach((elementName) => {
             const select = elements[elementName];
-
             if (!select) return;
-
-            const options = Object.values(indexes[elementName]).map((name) => {
+            
+            while (select.options.length > 0) {
+                select.remove(0);
+            }
+            
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Все';
+            select.appendChild(defaultOption);
+            
+            Object.values(indexes[elementName]).forEach(name => {
                 const option = document.createElement('option');
-                option.value = name;
                 option.textContent = name;
-                return option;
+                option.value = name;
+                select.appendChild(option);
             });
-
-            select.append(...options);
         });
     };
 
     const applyFiltering = (query, state, action) => {
         if (action && action.name === 'clear') {
             const parent = action.closest('.filter-wrapper');
-
             if (parent) {
                 const input = parent.querySelector('input');
-
                 if (input) {
                     input.value = '';
-
                     const field = action.dataset?.field;
-
                     if (field) {
                         state[field] = '';
                     }
@@ -36,24 +38,14 @@ export function initFiltering(elements) {
         }
 
         const filter = {};
-
-        Object.keys(elements).forEach((key) => {
+        Object.keys(elements).forEach(key => {
             const el = elements[key];
-
-            if (!el) return;
-
-            if (
-                ['INPUT', 'SELECT'].includes(el.tagName) &&
-                el.value
-            ) {
-                // ❗ ВАЖНО: убрали filter[...] — часто не поддерживается API
+            if (el && ['INPUT', 'SELECT'].includes(el.tagName) && el.value) {
                 filter[el.name] = el.value;
             }
         });
 
-        return Object.keys(filter).length
-            ? Object.assign({}, query, filter)
-            : query;
+        return Object.keys(filter).length ? Object.assign({}, query, filter) : query;
     };
 
     return {
