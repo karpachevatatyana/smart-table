@@ -24,7 +24,15 @@ export function initSorting(columns) {
             });
         }
 
-        const sort = (field && order !== 'none') ? `${field}:${order}` : null;
+        // Преобразуем 'up' и 'down' в 'asc' и 'desc' для API
+        let sortOrder = null;
+        if (order === 'up') {
+            sortOrder = 'asc';
+        } else if (order === 'down') {
+            sortOrder = 'desc';
+        }
+        
+        const sort = (field && sortOrder) ? `${field}:${sortOrder}` : null;
         
         return sort ? Object.assign({}, query, { sort }) : query;
     };

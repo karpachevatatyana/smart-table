@@ -59,9 +59,9 @@ const sortFn = {
  * по убыванию -> отсутствие сортировки и т.д.
  */
 export const sortMap = {
-    'none': 'asc',
-    'asc': 'desc',
-    'desc': 'none'
+    'none': 'up',
+    'up': 'down',
+    'down': 'none'
 };
 
 /**

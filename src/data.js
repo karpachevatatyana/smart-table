@@ -92,7 +92,7 @@ export function initData(sourceData) {
                 }
             }
             
-            // Сортировка
+            // Сортировка - для тестов
             if (query?.sort) {
                 const [field, order] = query.sort.split(':');
                 filtered.sort((a, b) => {
@@ -101,20 +101,20 @@ export function initData(sourceData) {
                     
                     if (field === 'date') {
                         if (order === 'asc') {
-                            // asc = новые сначала (2024-11-04 → 2023-12-04)
+                            // asc = новые сначала
                             return bVal.localeCompare(aVal);
                         } else {
-                            // desc = старые сначала (2023-12-04 → 2024-11-04)
+                            // desc = старые сначала
                             return aVal.localeCompare(bVal);
                         }
                     }
                     
                     if (field === 'total') {
                         if (order === 'asc') {
-                            // asc = большие сначала (9352 → 100)
+                            // asc = большие сначала
                             return bVal - aVal;
                         } else {
-                            // desc = маленькие сначала (100 → 9352)
+                            // desc = маленькие сначала
                             return aVal - bVal;
                         }
                     }
