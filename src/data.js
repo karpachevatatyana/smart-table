@@ -100,20 +100,22 @@ export function initData(sourceData) {
                     let bVal = b[field];
                     
                     if (field === 'date') {
-                        // В тестах "asc" означает от новых к старым (убывание)
                         if (order === 'asc') {
-                            return bVal.localeCompare(aVal); // новые сначала
+                            // asc = новые сначала (2024-11-04 → 2023-12-04)
+                            return bVal.localeCompare(aVal);
                         } else {
-                            return aVal.localeCompare(bVal); // старые сначала
+                            // desc = старые сначала (2023-12-04 → 2024-11-04)
+                            return aVal.localeCompare(bVal);
                         }
                     }
                     
                     if (field === 'total') {
-                        // В тестах "asc" означает от больших к меньшим (убывание)
                         if (order === 'asc') {
-                            return bVal - aVal; // большие сначала
+                            // asc = большие сначала (9352 → 100)
+                            return bVal - aVal;
                         } else {
-                            return aVal - bVal; // маленькие сначала
+                            // desc = маленькие сначала (100 → 9352)
+                            return aVal - bVal;
                         }
                     }
                     
