@@ -64,29 +64,29 @@ export function initData(sourceData) {
         if (localRecords.length) {
             let filtered = [...localRecords];
             
-            // Фильтрация по дате (частичное совпадение)
-            if (query && query.date && query.date !== '') {
+            // Фильтрация по дате
+            if (query?.date && query.date !== '') {
                 filtered = filtered.filter(item => 
                     item.date.includes(query.date)
                 );
             }
             
-            // Фильтрация по покупателю (частичное совпадение)
-            if (query && query.customer && query.customer !== '') {
+            // Фильтрация по покупателю
+            if (query?.customer && query.customer !== '') {
                 filtered = filtered.filter(item => 
                     item.customer.toLowerCase().includes(query.customer.toLowerCase())
                 );
             }
             
-            // Фильтрация по продавцу (точное совпадение)
-            if (query && query.seller && query.seller !== '') {
+            // Фильтрация по продавцу
+            if (query?.seller && query.seller !== '') {
                 filtered = filtered.filter(item => 
                     item.seller === query.seller
                 );
             }
             
-            // Поиск (по всем текстовым полям)
-            if (query && query.search && query.search !== '') {
+            // Поиск
+            if (query?.search && query.search !== '') {
                 const searchTerm = query.search.toLowerCase();
                 filtered = filtered.filter(item => 
                     item.date.includes(searchTerm) ||
@@ -95,45 +95,53 @@ export function initData(sourceData) {
                 );
             }
             
-            // Фильтрация по сумме от
-            if (query && query.totalFrom && query.totalFrom !== '') {
+            // Фильтрация по сумме
+            if (query?.totalFrom && query.totalFrom !== '') {
                 const from = parseFloat(query.totalFrom);
                 if (!isNaN(from)) {
                     filtered = filtered.filter(item => item.total >= from);
                 }
             }
             
-            // Фильтрация по сумме до
-            if (query && query.totalTo && query.totalTo !== '') {
+            if (query?.totalTo && query.totalTo !== '') {
                 const to = parseFloat(query.totalTo);
                 if (!isNaN(to)) {
                     filtered = filtered.filter(item => item.total <= to);
                 }
             }
             
-            // Сортировка
-            if (query && query.sort) {
+            // Сортировка - ВАЖНО: правильное сравнение дат
+            if (query?.sort) {
                 const [field, order] = query.sort.split(':');
                 filtered.sort((a, b) => {
                     let aVal = a[field];
                     let bVal = b[field];
                     
                     if (field === 'date') {
-                        aVal = new Date(aVal);
-                        bVal = new Date(bVal);
+                        // Сравниваем даты как строки в формате YYYY-MM-DD
+                        // Это работает для лексикографического сравнения
+                        if (order === 'asc') {
+                            return aVal.localeCompare(bVal);
+                        } else {
+                            return bVal.localeCompare(aVal);
+                        }
                     }
                     
-                    if (order === 'asc') {
-                        return aVal > bVal ? 1 : -1;
-                    } else {
-                        return aVal < bVal ? 1 : -1;
+                    if (field === 'total') {
+                        if (order === 'asc') {
+                            return aVal - bVal;
+                        } else {
+                            return bVal - aVal;
+                        }
                     }
+                    
+                    return 0;
                 });
             }
             
             // Пагинация
-            const limit = query && query.limit ? parseInt(query.limit) : 10;
-            const page = query && query.page ? parseInt(query.page) : 1;
+            const limit = query?.limit ? parseInt(query.limit) : 10;
+            const page = query?.page ? parseInt(query.page) : 1;
             const start = (page - 1) * limit;
             const paginated = filtered.slice(start, start + limit);
             
