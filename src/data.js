@@ -14,7 +14,6 @@ const mapRecords = (data) => data.map(item => ({
 }));
 
 export function initData(sourceData) {
-    // Преобразуем данные для локального использования
     let localRecords = [];
     let localSellers = [];
     let localCustomers = [];
@@ -22,19 +21,16 @@ export function initData(sourceData) {
     let customersMap = {};
     
     if (sourceData && sourceData.purchase_records) {
-        // Маппинг продавцов
         sourceData.sellers?.forEach(seller => {
             sellersMap[seller.id] = `${seller.first_name} ${seller.last_name}`;
         });
         localSellers = Object.values(sellersMap);
         
-        // Маппинг покупателей
         sourceData.customers?.forEach(customer => {
             customersMap[customer.id] = `${customer.first_name} ${customer.last_name}`;
         });
         localCustomers = Object.values(customersMap);
         
-        // Преобразуем записи
         localRecords = sourceData.purchase_records.map(record => ({
             id: record.receipt_id,
             date: record.date,
@@ -60,32 +56,21 @@ export function initData(sourceData) {
     }
 
     const getRecords = async (query, isUpdated = false) => {
-        // Для локальных данных
         if (localRecords.length) {
             let filtered = [...localRecords];
             
-            // Фильтрация по дате
+            // Фильтрация
             if (query?.date && query.date !== '') {
-                filtered = filtered.filter(item => 
-                    item.date.includes(query.date)
-                );
+                filtered = filtered.filter(item => item.date.includes(query.date));
             }
-            
-            // Фильтрация по покупателю
             if (query?.customer && query.customer !== '') {
                 filtered = filtered.filter(item => 
                     item.customer.toLowerCase().includes(query.customer.toLowerCase())
                 );
             }
-            
-            // Фильтрация по продавцу
             if (query?.seller && query.seller !== '') {
-                filtered = filtered.filter(item => 
-                    item.seller === query.seller
-                );
+                filtered = filtered.filter(item => item.seller === query.seller);
             }
-            
-            // Поиск
             if (query?.search && query.search !== '') {
                 const searchTerm = query.search.toLowerCase();
                 filtered = filtered.filter(item => 
@@ -94,15 +79,12 @@ export function initData(sourceData) {
                     item.seller.toLowerCase().includes(searchTerm)
                 );
             }
-            
-            // Фильтрация по сумме
             if (query?.totalFrom && query.totalFrom !== '') {
                 const from = parseFloat(query.totalFrom);
                 if (!isNaN(from)) {
                     filtered = filtered.filter(item => item.total >= from);
                 }
             }
-            
             if (query?.totalTo && query.totalTo !== '') {
                 const to = parseFloat(query.totalTo);
                 if (!isNaN(to)) {
@@ -110,7 +92,7 @@ export function initData(sourceData) {
                 }
             }
             
-            // Сортировка - ВАЖНО: правильное сравнение дат
+            // Сортировка - исправляем порядок
             if (query?.sort) {
                 const [field, order] = query.sort.split(':');
                 filtered.sort((a, b) => {
@@ -118,19 +100,22 @@ export function initData(sourceData) {
                     let bVal = b[field];
                     
                     if (field === 'date') {
-                        // Сравниваем даты как строки в формате YYYY-MM-DD
-                        // Это работает для лексикографического сравнения
+                        // Для дат используем сравнение строк YYYY-MM-DD
                         if (order === 'asc') {
+                            // По возрастанию: от старых к новым
                             return aVal.localeCompare(bVal);
                         } else {
+                            // По убыванию: от новых к старым
                             return bVal.localeCompare(aVal);
                         }
                     }
                     
                     if (field === 'total') {
                         if (order === 'asc') {
+                            // По возрастанию: от меньших к большим
                             return aVal - bVal;
                         } else {
+                            // По убыванию: от больших к меньшим
                             return bVal - aVal;
                         }
                     }
@@ -151,7 +136,7 @@ export function initData(sourceData) {
             };
         }
         
-        // Для API
+        // API
         const qs = new URLSearchParams(query);
         const nextQuery = qs.toString();
 
