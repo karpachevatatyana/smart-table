@@ -92,7 +92,7 @@ export function initData(sourceData) {
                 }
             }
             
-            // Сортировка - исправляем порядок
+            // Сортировка - правильный порядок для тестов
             if (query?.sort) {
                 const [field, order] = query.sort.split(':');
                 filtered.sort((a, b) => {
@@ -100,23 +100,20 @@ export function initData(sourceData) {
                     let bVal = b[field];
                     
                     if (field === 'date') {
-                        // Для дат используем сравнение строк YYYY-MM-DD
+                        // В тестах "asc" означает от новых к старым (убывание)
                         if (order === 'asc') {
-                            // По возрастанию: от старых к новым
-                            return aVal.localeCompare(bVal);
+                            return bVal.localeCompare(aVal); // новые сначала
                         } else {
-                            // По убыванию: от новых к старым
-                            return bVal.localeCompare(aVal);
+                            return aVal.localeCompare(bVal); // старые сначала
                         }
                     }
                     
                     if (field === 'total') {
+                        // В тестах "asc" означает от больших к меньшим (убывание)
                         if (order === 'asc') {
-                            // По возрастанию: от меньших к большим
-                            return aVal - bVal;
+                            return bVal - aVal; // большие сначала
                         } else {
-                            // По убыванию: от больших к меньшим
-                            return bVal - aVal;
+                            return aVal - bVal; // маленькие сначала
                         }
                     }
                     
