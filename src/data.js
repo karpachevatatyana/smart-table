@@ -15,10 +15,10 @@ const mapRecords = (data) => data.map(item => ({
 
 export function initData(sourceData) {
     const getIndexes = async () => {
-        if (!sellers || !customers) {
-            [sellers, customers] = await Promise.all([
-                fetch(`${BASE_URL}/sellers`).then(res => res.json()),
-                fetch(`${BASE_URL}/customers`).then(res => res.json()),
+        if (!sellers || !customers) { 
+            [sellers, customers] = await Promise.all([ 
+                fetch(`${BASE_URL}/sellers`).then(res => res.json()), 
+                fetch(`${BASE_URL}/customers`).then(res => res.json()), 
             ]);
         }
 
@@ -26,17 +26,18 @@ export function initData(sourceData) {
     }
 
     const getRecords = async (query, isUpdated = false) => {
-        const qs = new URLSearchParams(query);
-        const nextQuery = qs.toString();
+        const qs = new URLSearchParams(query); 
+        const nextQuery = qs.toString(); 
 
-        if (lastQuery === nextQuery && !isUpdated) {
-            return lastResult;
+        if (lastQuery === nextQuery && !isUpdated) { 
+            return lastResult; 
         }
 
+        
         const response = await fetch(`${BASE_URL}/records?${nextQuery}`);
         const records = await response.json();
 
-        lastQuery = nextQuery;
+        lastQuery = nextQuery; 
         lastResult = {
             total: records.total,
             items: mapRecords(records.items)
