@@ -101,29 +101,32 @@ export function initData(sourceData) {
             
             // Сортировка
             if (query?.sort) {
-                const [field, order] = query.sort.split(':');
-                filtered.sort((a, b) => {
-                    let aVal = a[field];
-                    let bVal = b[field];
-                    
-                    if (field === 'date') {
-                        if (order === 'asc') {
-                            return bVal.localeCompare(aVal);
-                        } else {
-                            return aVal.localeCompare(bVal);
-                        }
-                    }
-                    
-                    if (field === 'total') {
-                        if (order === 'asc') {
-                            return bVal - aVal;
-                        } else {
-                            return aVal - bVal;
-                        }
-                    }
-                    return 0;
-                });
+    const [field, order] = query.sort.split(':');
+
+    filtered.sort((a, b) => {
+        let aVal = a[field];
+        let bVal = b[field];
+
+        if (field === 'date') {
+            // правильная логика
+            if (order === 'asc') {
+                return aVal.localeCompare(bVal);
+            } else {
+                return bVal.localeCompare(aVal);
             }
+        }
+
+        if (field === 'total') {
+            if (order === 'asc') {
+                return aVal - bVal;
+            } else {
+                return bVal - aVal;
+            }
+        }
+
+        return 0;
+    });
+}
             
             // Пагинация
             const limit = query?.limit ? parseInt(query.limit) : 10;
