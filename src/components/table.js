@@ -1,13 +1,9 @@
 import { cloneTemplate } from "../lib/utils.js";
 
-/**
- * Инициализирует таблицу и вызывает коллбэк при любых изменениях
- */
 export function initTable(settings, onAction) {
     const { tableTemplate, rowTemplate, before, after } = settings;
     const root = cloneTemplate(tableTemplate);
 
-    // ===== BEFORE (search/header/filter) =====
     if (before && before.length) {
         [...before].reverse().forEach(subName => {
             root[subName] = cloneTemplate(subName);
@@ -15,7 +11,6 @@ export function initTable(settings, onAction) {
         });
     }
 
-    // ===== AFTER (pagination) =====
     if (after && after.length) {
         after.forEach(subName => {
             root[subName] = cloneTemplate(subName);
@@ -23,7 +18,6 @@ export function initTable(settings, onAction) {
         });
     }
 
-    // ===== EVENTS =====
     root.container.addEventListener('change', () => {
         onAction();
     });
@@ -37,7 +31,6 @@ export function initTable(settings, onAction) {
         onAction(e.submitter);
     });
 
-    // ===== RENDER =====
     const render = (data = []) => {
         if (!root.elements || !root.elements.rows) return;
 

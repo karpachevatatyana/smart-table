@@ -10,10 +10,8 @@
 </head>
 <body>
 <main id="app" class="container">
-    <!-- Table content will be inserted here -->
 </main>
 
-<!-- Search bar template -->
 <template id="search">
     <div class="search-bar">
         <label class="search-wrapper" data-name="searchField">
@@ -80,19 +78,13 @@
     </div>
 </template>
 
-<!-- Table template -->
 <template id="table">
     <form name="table" class="table" style="--columns: 1fr 1fr 1fr 1fr" role="table" aria-label="Data table">
-        <!-- Header row -->
-        <!-- Filter row -->
-        <!-- Table content -->
         <div class="table-content" data-name="rows" role="rowgroup">
-            <!-- Rows will be inserted here -->
         </div>
     </form>
 </template>
 
-<!-- Pagination template -->
 <template id="pagination">
     <div class="pagination-container">
         <div class="pagination-controls">
@@ -103,7 +95,6 @@
                 <i class="icon left" aria-hidden="true"></i>
             </button>
             <div class="pagination-pages" data-name="pages" role="group" aria-label="Page navigation">
-                <!-- Page buttons will be generated dynamically -->
                 <label class="pagination-button" aria-label="Goto page 1">
                     <input type="radio" name="page" value="1">
                     <span>1</span>
@@ -134,7 +125,6 @@
     </div>
 </template>
 
-<!-- Row template -->
 <template id="row">
     <div class="table-row" role="row">
         <div class="table-column" data-name="date" role="cell"></div>

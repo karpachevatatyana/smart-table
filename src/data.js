@@ -14,7 +14,6 @@ const mapRecords = (data) => data.map(item => ({
 }));
 
 export function initData(sourceData) {
-    // Подготовка локальных данных
     let localRecords = [];
     let localSellers = [];
     let localCustomers = [];
@@ -42,7 +41,6 @@ export function initData(sourceData) {
     }
     
     const getIndexes = async () => {
-        // Всегда возвращаем локальные индексы для тестов
         if (localSellers.length && localCustomers.length) {
             return { sellers: localSellers, customers: localCustomers };
         }
@@ -62,11 +60,9 @@ export function initData(sourceData) {
     }
 
     const getRecords = async (query, isUpdated = false) => {
-        // Всегда используем локальные данные для тестов
         if (localRecords.length) {
             let filtered = [...localRecords];
             
-            // Фильтрация
             if (query?.date && query.date !== '') {
                 filtered = filtered.filter(item => item.date.includes(query.date));
             }
@@ -99,7 +95,6 @@ export function initData(sourceData) {
                 }
             }
             
-            // Сортировка
             if (query?.sort) {
     const [field, order] = query.sort.split(':');
 
@@ -127,7 +122,6 @@ if (field === 'total') {
     });
 }
             
-            // Пагинация
             const limit = query?.limit ? parseInt(query.limit) : 10;
             const page = query?.page ? parseInt(query.page) : 1;
             const start = (page - 1) * limit;
@@ -139,7 +133,6 @@ if (field === 'total') {
             };
         }
         
-        // Fallback для API
         try {
             const qs = new URLSearchParams(query);
             const nextQuery = qs.toString();
