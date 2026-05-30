@@ -107,22 +107,21 @@ export function initData(sourceData) {
         let aVal = a[field];
         let bVal = b[field];
 
-        if (field === 'date') {
-            // правильная логика
-            if (order === 'asc') {
-                return aVal.localeCompare(bVal);
-            } else {
-                return bVal.localeCompare(aVal);
-            }
-        }
+if (field === 'date') {
+    if (order === 'asc') {
+        return aVal.localeCompare(bVal);
+    } else {
+        return bVal.localeCompare(aVal);
+    }
+}
 
-        if (field === 'total') {
-            if (order === 'asc') {
-                return aVal - bVal;
-            } else {
-                return bVal - aVal;
-            }
-        }
+if (field === 'total') {
+    if (order === 'asc') {
+        return aVal - bVal;
+    } else {
+        return bVal - aVal;
+    }
+}
 
         return 0;
     });

@@ -1,13 +1,12 @@
 import { sortMap } from "../lib/sort.js";
 
 export function initSorting(columns) {
-
     return (query, state, action) => {
+        let field = null;
+        let order = null;
 
         if (action && action.name === 'sort') {
-
-            action.dataset.value =
-                sortMap[action.dataset.value];
+            action.dataset.value = sortMap[action.dataset.value];
 
             columns.forEach(column => {
                 if (column !== action) {
@@ -16,9 +15,6 @@ export function initSorting(columns) {
             });
         }
 
-        let field = null;
-        let order = null;
-
         columns.forEach(column => {
             if (column.dataset.value !== 'none') {
                 field = column.dataset.field;
@@ -26,24 +22,15 @@ export function initSorting(columns) {
             }
         });
 
-        if (!field || !order) {
+        if (!field || !order || order === 'none') {
             return query;
         }
 
-        const apiOrder =
-            order === 'up'
-                ? 'asc'
-                : order === 'down'
-                    ? 'desc'
-                    : null;
+        const apiOrder = order === 'up' ? 'asc' : 'desc';
 
-        if (!apiOrder) {
-            return query;
-        }
-
-        return Object.assign({}, query, {
-            sort: field,
-            order: apiOrder
-        });
+        return {
+            ...query,
+            sort: `${field}:${apiOrder}`
+        };
     };
 }
