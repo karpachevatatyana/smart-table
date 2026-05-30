@@ -1,42 +1,49 @@
 import { sortMap } from "../lib/sort.js";
 
 export function initSorting(columns) {
+
     return (query, state, action) => {
-        let field = null;
-        let order = null;
 
         if (action && action.name === 'sort') {
-            // Обновляем значение кнопки
-            action.dataset.value = sortMap[action.dataset.value];
-            field = action.dataset.field;
-            order = action.dataset.value;
 
-            // Сбрасываем другие кнопки
+            action.dataset.value =
+                sortMap[action.dataset.value];
+
             columns.forEach(column => {
-                if (column.dataset.field !== action.dataset.field) {
+                if (column !== action) {
                     column.dataset.value = 'none';
                 }
             });
-        } else {
-            // Находим активную сортировку
-            columns.forEach(column => {
-                if (column.dataset.value !== 'none') {
-                    field = column.dataset.field;
-                    order = column.dataset.value;
-                }
-            });
         }
 
-        // Преобразуем 'up' в 'asc', 'down' в 'desc' для запроса
-        let queryOrder = null;
-        if (order === 'up') {
-            queryOrder = 'asc';
-        } else if (order === 'down') {
-            queryOrder = 'desc';
+        let field = null;
+        let order = null;
+
+        columns.forEach(column => {
+            if (column.dataset.value !== 'none') {
+                field = column.dataset.field;
+                order = column.dataset.value;
+            }
+        });
+
+        if (!field || !order) {
+            return query;
         }
-        
-        const sort = (field && queryOrder) ? `${field}:${queryOrder}` : null;
-        
-        return sort ? Object.assign({}, query, { sort }) : query;
+
+        const apiOrder =
+            order === 'up'
+                ? 'asc'
+                : order === 'down'
+                    ? 'desc'
+                    : null;
+
+        if (!apiOrder) {
+            return query;
+        }
+
+        return Object.assign({}, query, {
+            sort: field,
+            order: apiOrder
+        });
     };
 }
