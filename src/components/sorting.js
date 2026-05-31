@@ -24,7 +24,11 @@ export function initSorting(columns) {
             });
         }
 
-        const sort = (field && order !== 'none') ? `${field}:${order}` : null;
+        let apiOrder = null;
+        if (order === 'up') apiOrder = 'asc';
+        if (order === 'down') apiOrder = 'desc';
+        
+        const sort = (field && apiOrder) ? `${field}:${apiOrder}` : null;
 
         return sort ? Object.assign({}, query, { sort }) : query;
     };
