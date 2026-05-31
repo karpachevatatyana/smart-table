@@ -19,36 +19,21 @@ export function initFiltering(elements) {
 
     const applyFiltering = (query, state, action) => {
         if (action && action.name === 'clear') {
-            const parent = action.closest('.filter-wrapper');
-            if (parent) {
-                const input = parent.querySelector('input');
-                if (input) {
-                    input.value = '';
-                }
+            const parent = action.closest('.filter-wrapper, .dropdown-select');
+            const input = parent?.querySelector('input, select');
+            if (input) {
+                input.value = '';
             }
         }
 
         const filter = {};
-        
-        if (elements.searchByDate && elements.searchByDate.value) {
-            filter.date = elements.searchByDate.value;
-        }
-        
-        if (elements.searchByCustomer && elements.searchByCustomer.value) {
-            filter.customer = elements.searchByCustomer.value;
-        }
-        
-        if (elements.searchBySeller && elements.searchBySeller.value) {
-            filter.seller = elements.searchBySeller.value;
-        }
-        
-        if (elements.totalFrom && elements.totalFrom.value) {
-            filter.totalFrom = elements.totalFrom.value;
-        }
-        
-        if (elements.totalTo && elements.totalTo.value) {
-            filter.totalTo = elements.totalTo.value;
-        }
+        Object.keys(elements).forEach(key => {
+            if (elements[key]) {
+                if (['INPUT', 'SELECT'].includes(elements[key].tagName) && elements[key].value) {
+                    filter[`filter[${elements[key].name}]`] = elements[key].value;
+                }
+            }
+        });
 
         return Object.keys(filter).length ? Object.assign({}, query, filter) : query;
     };

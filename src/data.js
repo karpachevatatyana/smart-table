@@ -13,7 +13,7 @@ const mapRecords = (data) => data.map(item => ({
     total: item.total_amount
 }));
 
-export function initData() {
+export function initData(sourceData) {
     const getIndexes = async () => {
         if (!sellers || !customers) {
             [sellers, customers] = await Promise.all([
