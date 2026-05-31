@@ -1,4 +1,3 @@
-import { data as sourceData } from "./data/dataset_1.js";
 import { initData } from "./data.js";
 import { processFormData } from "./lib/utils.js";
 import { initTable } from "./components/table.js";
@@ -7,7 +6,7 @@ import { initSorting } from "./components/sorting.js";
 import { initFiltering } from "./components/filtering.js";
 import { initSearching } from "./components/searching.js";
 
-const api = initData(sourceData);
+const api = initData();
 
 function collectState() {
     const state = processFormData(new FormData(sampleTable.container));
